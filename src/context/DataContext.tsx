@@ -85,6 +85,7 @@ export function DataProvider({
   const url = 'http://unibooks.local:5173/'
   const prodUrl = "https://online-textbook-ordering-system-ai41.vercel.app/auth"
   const baseUrl = 'http://127.0.0.1:5000';
+  const backendUrl = 'https://backend2-opvr.onrender.com';
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [profile, setProfile] = useState<UserProfile>({
     userId: "10rj3j4",
@@ -123,7 +124,7 @@ export function DataProvider({
         // Handle URL user ID case
         if (urlUserId) {
           try {
-            const response = await axios.get(`${baseUrl}/api/users/${urlUserId}`);
+            const response = await axios.get(`${backendUrl}/api/users/${urlUserId}`);
             localStorage.setItem("token", response.data.token);
             token = response.data.token;
             const cleanPath = window.location.pathname.replace(/\/+/g, '/'); // Remove duplicate slashes
@@ -180,7 +181,7 @@ export function DataProvider({
         console.error("Authentication error:", error);
         localStorage.removeItem("token");
         localStorage.removeItem("currentUser");
-        window.location.href = `${url}auth`;
+        window.location.href = `${prodUrl}auth`;
       } finally {
         setIsCheckingAuth(false);
       }
@@ -217,7 +218,7 @@ export function DataProvider({
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
-    window.location.href = `${url}`;
+    window.location.href = `${prodUrl}`;
   };
   const deleteAccount = () => {
     // Implement account deletion logic

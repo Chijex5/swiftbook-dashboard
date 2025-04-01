@@ -28,7 +28,7 @@ export function WelcomeConfetti() {
     console.log(token)
     if (token) {
       try {
-        const response = await axios.post(`${baseUrl}/api/iswelcomed`, null, {
+        const response = await axios.post(`${baseUrl1}/api/iswelcomed`, null, {
           headers: { Authorization: `Bearer ${token}` },
         });
         updateProfile({ hasWelcomed: response.data.haswelcomed });
