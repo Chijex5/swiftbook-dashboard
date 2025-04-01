@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import React, { useState, useEffect, createContext, useContext } from "react";
 type PaymentMethod = {
   id: string;
@@ -66,6 +67,7 @@ type DataContextType = {
   setDefaultPaymentMethod: (id: string) => void;
   paymentHistory: PaymentHistory[];
   logout: () => void;
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   deleteAccount: () => void;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
   orders: Order[];
@@ -80,6 +82,9 @@ export function DataProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const url = 'http://unibooks.local:5173/'
+  const prodUrl = "https://online-textbook-ordering-system-ai41.vercel.app/auth"
+  const baseUrl = 'http://127.0.0.1:5000';
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [profile, setProfile] = useState<UserProfile>({
     userId: "10rj3j4",
@@ -108,32 +113,37 @@ export function DataProvider({
     // Your books data here
   ]);
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       setIsCheckingAuth(true);
       let token: string | null = null;
-      
       const queryParams = new URLSearchParams(window.location.search);
-      const urlToken = queryParams.get("token");
-      
-      if (urlToken) {
-        // Store new token and clean URL
-        localStorage.setItem("token", urlToken);
-        token = urlToken;
-        window.history.replaceState(null, "", window.location.pathname);
-      } else {
-        // Check localStorage for existing token
-        token = localStorage.getItem("token");
-      }
-  
-      if (!token) {
-        // No token found anywhere
-        localStorage.removeItem("token");
-        window.location.href = "https://online-textbook-ordering-system-ai41.vercel.app/auth";
-        return;
-      }
+      const urlUserId = queryParams.get("userId");
   
       try {
-        // Decode and validate token
+        // Handle URL user ID case
+        if (urlUserId) {
+          try {
+            const response = await axios.get(`${baseUrl}/api/users/${urlUserId}`);
+            localStorage.setItem("token", response.data.token);
+            token = response.data.token;
+            const cleanPath = window.location.pathname.replace(/\/+/g, '/'); // Remove duplicate slashes
+            const newUrl = `${window.location.origin}${cleanPath}`;
+            window.history.replaceState(null, "", newUrl);
+
+          } catch (error) {
+            throw new Error("Invalid authentication token");
+          }
+        } else {
+          // Check localStorage for existing token
+          token = localStorage.getItem("token");
+        }
+  
+        // Final check if token is still missing
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+  
+        // Token validation
         const decoded = jwtDecode<{
           userId: string;
           fullName: string;
@@ -152,8 +162,7 @@ export function DataProvider({
           throw new Error("Token expired");
         }
   
-        // Create user object from decoded token
-        console.log(decoded.address)
+        // Update user profile
         const userData = {
           userId: decoded.userId,
           fullName: decoded.fullName,
@@ -164,8 +173,6 @@ export function DataProvider({
           level: decoded.level || "",
           hasWelcomed: decoded.hasWelcomed || false,
         };
-  
-        // Update state and localStorage
         setProfile(userData);
         localStorage.setItem("currentUser", JSON.stringify(userData));
   
@@ -173,7 +180,7 @@ export function DataProvider({
         console.error("Authentication error:", error);
         localStorage.removeItem("token");
         localStorage.removeItem("currentUser");
-        window.location.href = "https://online-textbook-ordering-system-ai41.vercel.app/auth";
+        window.location.href = `${url}auth`;
       } finally {
         setIsCheckingAuth(false);
       }
@@ -210,7 +217,7 @@ export function DataProvider({
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
-    window.location.href = "https://online-textbook-ordering-system-ai41.vercel.app/auth";
+    window.location.href = `${url}`;
   };
   const deleteAccount = () => {
     // Implement account deletion logic
@@ -248,6 +255,7 @@ export function DataProvider({
     logout,
     deleteAccount,
     changePassword,
+    setProfile,
     orders,
     addOrder,
     getOrder,

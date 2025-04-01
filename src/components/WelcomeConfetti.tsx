@@ -6,7 +6,8 @@ import axios from "axios";
 export function WelcomeConfetti() {
   const { profile, updateProfile } = useData();
   const [showModal, setShowModal] = useState(false);
-  const baseUrl = 'https://backend2-opvr.onrender.com';
+  const baseUrl = 'http://127.0.0.1:5000'
+  const baseUrl1 = 'https://backend2-opvr.onrender.com';
 
   useEffect(() => {
     // Check if the modal has been closed in this session

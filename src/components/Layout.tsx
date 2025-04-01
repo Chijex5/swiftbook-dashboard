@@ -15,6 +15,7 @@ import { TrackOrderPage } from "../pages/TrackOrderPage";
 import { CheckoutPage } from "../pages/CheckoutPage";
 import { jwtDecode } from "jwt-decode";
 import { WelcomeConfetti } from "./WelcomeConfetti";
+import axios from "axios";
 
 interface JwtPayload {
   exp: number;
@@ -43,86 +44,86 @@ type UserProfile = {
 
 export function Layout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [currentUser, setUser] = useState<UserProfile | null>(null);
+  const { isCheckingAuth } = useData();
+  const url = 'http://unibooks.local:5173/'
+  const prodUrl = "https://online-textbook-ordering-system-ai41.vercel.app/auth"
+  const baseUrl = 'http://127.0.0.1:5000';
+  const baseUrl1 = 'https://backend2-opvr.onrender.com';
 
-  useEffect(() => {
-    const checkAuth = () => {
-      setIsCheckingAuth(true);
-      let token: string | null = null;
-      
-      // First check URL for new token
-      const queryParams = new URLSearchParams(window.location.search);
-      const urlToken = queryParams.get("token");
-      
-      if (urlToken) {
-        // Store new token and clean URL
-        localStorage.setItem("token", urlToken);
-        token = urlToken;
-        window.history.replaceState(null, "", window.location.pathname);
-      } else {
-        // Check localStorage for existing token
-        token = localStorage.getItem("token");
-      }
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     setIsCheckingAuth(true);
+  //     let token: string | null = null;
+  //     const queryParams = new URLSearchParams(window.location.search);
+  //     const urlUserId = queryParams.get("userId");
   
-      if (!token) {
-        // No token found anywhere
-        localStorage.removeItem("token");
-        window.location.href = "http://localhost:5173/auth";
-        return;
-      }
+  //     try {
+  //       // Handle URL user ID case
+  //       if (urlUserId) {
+  //         try {
+  //           const response = await axios.get(`${baseUrl}/api/users/${urlUserId}`);
+  //           localStorage.setItem("token", response.data.token);
+  //           token = response.data.token;
+  //           window.history.replaceState(null, "", window.location.pathname);
+  //         } catch (error) {
+  //           console.error("Invalid user ID or network error:", error);
+  //           throw new Error("Invalid authentication token");
+  //         }
+  //       } else {
+  //         // Check localStorage for existing token
+  //         token = localStorage.getItem("token");
+  //       }
   
-      try {
-        // Decode and validate token
-        const decoded = jwtDecode<{
-          sub: {
-            userId: string;
-            fullName: string;
-            email: string;
-            phone?: string;
-            address?: string;
-            department?: string;
-            level?: string;
-            avatar?: string;
-            hasWelcomed?: boolean;
-          };
-          exp: number;
-        }>(token);
+  //       // Final check if token is still missing
+  //       if (!token) {
+  //         throw new Error("No authentication token found");
+  //       }
   
-        // Check token expiration
-        if (Date.now() / 1000 > decoded.exp) {
-          throw new Error("Token expired");
-        }
+  //       // Token validation
+  //       const decoded = jwtDecode<{
+  //         userId: string;
+  //         fullName: string;
+  //         email: string;
+  //         phone?: string;
+  //         address?: string;
+  //         department?: string;
+  //         level?: string;
+  //         avatar?: string;
+  //         hasWelcomed?: boolean;
+  //         exp: number;
+  //       }>(token);
   
-        // Create user object from decoded token
-        const userData = {
-          userId: decoded.sub.userId,
-          fullName: decoded.sub.fullName,
-          email: decoded.sub.email,
-          phone: decoded.sub.phone || "",
-          address: decoded.sub.address || "",
-          department: decoded.sub.department || "",
-          level: decoded.sub.level || "",
-          avatar: decoded.sub.avatar || "",
-          haswelcomed: decoded.sub.hasWelcomed || false,
-        };
+  //       // Check token expiration
+  //       if (Date.now() / 1000 > decoded.exp) {
+  //         throw new Error("Token expired");
+  //       }
   
-        // Update state and localStorage
-        setUser(userData);
-        localStorage.setItem("currentUser", JSON.stringify(userData));
+  //       // Update user profile
+  //       const userData = {
+  //         userId: decoded.userId,
+  //         fullName: decoded.fullName,
+  //         email: decoded.email,
+  //         phone: decoded.phone || "",
+  //         address: decoded.address || "",
+  //         department: decoded.department || "",
+  //         level: decoded.level || "",
+  //         hasWelcomed: decoded.hasWelcomed || false,
+  //       };
+  //       setProfile(userData);
+  //       localStorage.setItem("currentUser", JSON.stringify(userData));
   
-      } catch (error) {
-        console.error("Authentication error:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("currentUser");
-        window.location.href = "http://localhost:5173/auth";
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
+  //     } catch (error) {
+  //       console.error("Authentication error:", error);
+  //       localStorage.removeItem("token");
+  //       localStorage.removeItem("currentUser");
+  //       window.location.href = url;
+  //     } finally {
+  //       setIsCheckingAuth(false);
+  //     }
+  //   };
   
-    checkAuth();
-  }, []);
+  //   checkAuth();
+  // }, []);
 
 
 
