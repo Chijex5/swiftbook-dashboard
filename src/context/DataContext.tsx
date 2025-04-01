@@ -183,7 +183,9 @@ export function DataProvider({
         localStorage.removeItem("currentUser");
         window.location.href = `${prodUrl}auth`;
       } finally {
-        setIsCheckingAuth(false);
+        setTimeout(() => {
+          setIsCheckingAuth(false);
+        }, 4000);
       }
     };
   

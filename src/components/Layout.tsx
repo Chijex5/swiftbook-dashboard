@@ -5,6 +5,7 @@ import { UserDashboard } from "./UserDashboard";
 import { MobileNavigation } from "./MobileNavigation";
 import { BooksPage } from "../pages/BooksPage";
 import { WishlistPage } from "../pages/WishlistPage";
+import PageLoader from './Loader'
 import { ProfilePage } from "../pages/ProfilePage";
 import { useData } from "../context/DataContext";
 import { NotificationsPage } from "../pages/NotificationsPage";
@@ -129,7 +130,7 @@ export function Layout() {
 
 
   if (isCheckingAuth) {
-    return <div>Loading...</div>;
+    return <PageLoader/>;
   }
 
 
